@@ -1,0 +1,4 @@
+steps: 7200
+protocols: OMAD
+water: 8 glasses
+cold shower: yes
