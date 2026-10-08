@@ -1,3 +1,5 @@
+#Pushed to Github successfully!
+
 print("i have started.")
 print("I am happy to start with Amerix")
 steps = 9200
