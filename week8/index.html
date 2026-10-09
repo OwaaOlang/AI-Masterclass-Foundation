@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SMP Daily AI Coach</title>
+<style>
+body{font-family:Arial;background:#0f172a;color:white;padding:20px;max-width:600px;margin:auto}
+.card{background:#1e293b;padding:20px;border-radius:12px;margin-top:20px}
+input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none}
+button{width:100%;padding:12px;background:#38bdf8;color:#000;font-weight:bold;border:none;border-radius:8px;cursor:pointer}
+.log{font-size:13px;color:#94a3b8;margin-top:10px;border-top:1px solid #334155;padding-top:10px}
+</style>
+</head>
+<body>
+<h2>SMP Daily AI Coach (Browser Tool)</h2>
+<p>A browser-based tool that predicts goal outcome with confidence score and coaching message. All JavaScript, no server.</p>
+
+<div class="card">
+  <label>Sleep (hours)</label><input id="sleep" type="number" value="7">
+  <label>Water (glasses)</label><input id="water" type="number" value="8">
+  <label>Steps</label><input id="steps" type="number" value="8000">
+  <button onclick="runCoach()">Predict My Day</button>
+  <div id="result" style="margin-top:20px;font-size:18px"></div>
+  <div id="history" class="log"><b>Session History:</b><br></div>
+</div>
+
+<script>
+const predictGoal = (sleep, water, steps) => {
+  const sleepScore = Math.min(sleep / 8.0, 1) * 35
+  const waterScore = Math.min(water / 10.0, 1) * 25
+  const stepsScore = Math.min(steps / 12000, 1) * 40
+  const score = sleepScore + waterScore + stepsScore;
+  return { hitGoal: score >= 60, confidence: score/100, score: Math.round(score) };
+};
+const COACHING = {
+  "111": ["strong input, strong output. strong baseline"],
+  "110": ["hit goal despite low water. close hydration gap tomorrow"],
+  "101": ["water carried today despite low sleep. shore up sleep"],
+  "100": ["Goal hit on willpower. Build foundation of sleep and water intake"],
+  "011": ["solid inputs. But goal missed, audit scheduled"],
+  "010": ["sleep solid. water low, goal missed, add 2 glasses of water"],
+  "001": ["Low sleep is the primary issue. get to bed earlier"],
+  "000": ["Both inputs low and goal missed"]
+};
+const getCoaching = (sleep, water, hitGoal) => {
+  const key = `${hitGoal?1:0}${sleep>=7?1:0}${water>=8?1:0}`;
+  return COACHING[key].join("");
+};
+
+let historyLog = [];
+function runCoach(){
+  const sleep = parseFloat(document.getElementById('sleep').value);
+  const water = parseFloat(document.getElementById('water').value);
+  const steps = parseFloat(document.getElementById('steps').value);
+  const pred = predictGoal(sleep, water, steps);
+  const msg = getCoaching(sleep, water, pred.hitGoal);
+  
+  document.getElementById('result').innerHTML = 
+    `Score: ${pred.score}/100 <br> Hit Goal? ${pred.hitGoal? 'YES ✅':'NO ❌'} <br> Confidence: ${(pred.confidence*100).toFixed(0)}% <br><br><b>Coaching:</b> ${msg}`;
+
+  historyLog.unshift(`${new Date().toLocaleTimeString()} - S:${sleep} W:${water} Steps:${steps} => ${pred.score} ${msg}`);
+  document.getElementById('history').innerHTML = "<b>Session History:</b><br>" + historyLog.join("<br>");
+}
+</script>
+</body>
+</html>
